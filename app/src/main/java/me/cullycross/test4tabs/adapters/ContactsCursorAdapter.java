@@ -50,26 +50,18 @@ public class ContactsCursorAdapter
 
   @Override public void onBindViewHolder(ContactItem holder, Cursor cursor) {
 
-    final String image =
-        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
-
-    if (image != null) {
-      Picasso.with(mContext).load(Uri.parse(image)).fit().centerCrop().into(holder.mPhoto);
-    } else {
-      holder.mPhoto.setImageResource(R.mipmap.ic_launcher);
-    }
-
-    final String name =
-        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-
-    holder.mName.setText(name);
+    initImage(holder, cursor);
+    initName(holder, cursor);
 
     final String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
     final ContentResolver contentResolver = mContext.getContentResolver();
 
     initPhones(holder, id, contentResolver);
     initEmails(holder, id, contentResolver);
+    initExpander(holder);
+  }
 
+  private void initExpander(ContactItem holder) {
     if (holder.getAdapterPosition() == mExpandedPosition) {
       holder.mExpandArea.setVisibility(View.VISIBLE);
     } else {
@@ -88,6 +80,24 @@ public class ContactsCursorAdapter
       }
       notifyItemChanged(mExpandedPosition);
     });
+  }
+
+  private void initName(ContactItem holder, Cursor cursor) {
+    final String name =
+        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+    holder.mName.setText(name);
+  }
+
+  private void initImage(ContactItem holder, Cursor cursor) {
+    final String image =
+        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI));
+
+    if (image != null) {
+      Picasso.with(mContext).load(Uri.parse(image)).fit().centerCrop().into(holder.mPhoto);
+    } else {
+      holder.mPhoto.setImageResource(R.mipmap.ic_launcher);
+    }
   }
 
   private void initEmails(ContactItem holder, String id, ContentResolver contentResolver) {
@@ -112,10 +122,6 @@ public class ContactsCursorAdapter
 
     holder.mPhonesRecyclerView.setLayoutManager(phoneManager);
     holder.mPhonesRecyclerView.setAdapter(new PhoneCursorAdapter(mContext, phoneCursor));
-  }
-
-  private void initEmpty(ContactItem holder) {
-    holder.mPhonesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
   }
 
   static class ContactItem extends RecyclerView.ViewHolder {
