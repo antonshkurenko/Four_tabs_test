@@ -1,0 +1,54 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:animateLayoutChanges="true"
+    android:padding="4dp"
+    android:orientation="vertical">
+
+  <RelativeLayout
+      android:id="@+id/contact_layout"
+      android:layout_width="match_parent"
+      android:layout_height="60dp">
+
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_height="60dp"
+        android:layout_width="60dp"
+        />
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/photo"
+        android:layout_toEndOf="@id/photo"
+        android:maxWidth="140dp"
+        android:padding="10dp"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:text="Norman Stone"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
+  </RelativeLayout>
+
+  <LinearLayout
+      android:id="@+id/expand_area"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:gravity="center"
+      android:paddingLeft="70dp"
+      android:paddingStart="70dp"
+      android:orientation="vertical">
+    <me.cullycross.test4tabs.views.UntouchableRecyclerView
+        android:id="@+id/phones_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <me.cullycross.test4tabs.views.UntouchableRecyclerView
+        android:id="@+id/emails_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+  </LinearLayout>
+</LinearLayout>
