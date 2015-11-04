@@ -32,7 +32,7 @@ public class ContactsCursorAdapter
 
   private Context mContext;
 
-  private int mExpandedPosition;
+  private int mExpandedPosition = -1;
 
   public ContactsCursorAdapter(Context context, Cursor cursor) {
     super(context, cursor);
@@ -81,7 +81,11 @@ public class ContactsCursorAdapter
         int prev = mExpandedPosition;
         notifyItemChanged(prev);
       }
-      mExpandedPosition = holder.getAdapterPosition();
+      if (mExpandedPosition != holder.getAdapterPosition()) {
+        mExpandedPosition = holder.getAdapterPosition();
+      } else {
+        mExpandedPosition = -1;
+      }
       notifyItemChanged(mExpandedPosition);
     });
   }
