@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import com.squareup.picasso.Picasso;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.views.ExpandedRecyclerViewLinearManager;
@@ -68,16 +67,10 @@ public class ContactsCursorAdapter
     final String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
     final ContentResolver contentResolver = mContext.getContentResolver();
 
-    if (Integer.parseInt(
-        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-      initPhones(holder, id, contentResolver);
-    } else {
-      initEmpty(holder);
-    }
-
+    initPhones(holder, id, contentResolver);
     initEmails(holder, id, contentResolver);
 
-    if (holder.getPosition() == mExpandedPosition) {
+    if (holder.getAdapterPosition() == mExpandedPosition) {
       holder.mExpandArea.setVisibility(View.VISIBLE);
     } else {
       holder.mExpandArea.setVisibility(View.GONE);
@@ -88,7 +81,7 @@ public class ContactsCursorAdapter
         int prev = mExpandedPosition;
         notifyItemChanged(prev);
       }
-      mExpandedPosition = holder.getPosition();
+      mExpandedPosition = holder.getAdapterPosition();
       notifyItemChanged(mExpandedPosition);
     });
   }
