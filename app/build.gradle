@@ -47,12 +47,12 @@ dependencies {
   compile 'com.android.support:design:23.1.0'
 
   compile 'com.squareup.picasso:picasso:2.5.2'
+  compile 'com.commit451:PhotoView:1.2.4'
 
   compile 'com.jakewharton:butterknife:7.0.1'
 
   compile 'io.reactivex:rxjava:1.0.14'
   compile 'io.reactivex:rxandroid:1.0.1'
-
   compile 'com.tbruyelle.rxpermissions:rxpermissions:0.4.2@aar'
 }
 

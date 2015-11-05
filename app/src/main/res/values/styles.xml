@@ -11,6 +11,21 @@
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
   </style>
+
+  <style name="AppTheme.TransparentActionBar">
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+    <item name="android:windowActionBarOverlay">true</item>
+    <item name="windowActionBarOverlay">true</item>
+    <item name="android:windowActionModeOverlay">true</item>
+    <item name="windowActionModeOverlay">true</item>
+    <item name="android:textColorPrimary">@android:color/white</item>
+
+    <item name="actionMenuTextColor">@android:color/white</item>
+    <item name="android:textColorSecondary">@android:color/white</item>
+
+  </style>
+
   <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
