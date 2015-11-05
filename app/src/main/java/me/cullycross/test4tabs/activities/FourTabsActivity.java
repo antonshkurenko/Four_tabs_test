@@ -1,5 +1,6 @@
 package me.cullycross.test4tabs.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,18 +12,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.fragments.ContactsFragment;
 import me.cullycross.test4tabs.fragments.DatabaseFragment;
+import me.cullycross.test4tabs.fragments.EmailDialogFragment;
 import me.cullycross.test4tabs.fragments.PicturesFragment;
 import me.cullycross.test4tabs.fragments.SinglePictureFragment;
 
-public class FourTabsActivity extends AppCompatActivity {
+public class FourTabsActivity extends AppCompatActivity
+    implements EmailDialogFragment.OnFragmentInteractionListener {
 
   private SectionsPagerAdapter mSectionsPagerAdapter;
-
 
   @Bind(R.id.toolbar) Toolbar mToolbar;
   @Bind(R.id.container) ViewPager mViewPager;
@@ -48,6 +51,19 @@ public class FourTabsActivity extends AppCompatActivity {
             .show();
       }
     });
+  }
+
+  @Override public void onSendEmail(String recipient, String subject, String body) {
+    final Intent i = new Intent(Intent.ACTION_SEND);
+    i.setType("message/rfc822");
+    i.putExtra(Intent.EXTRA_EMAIL, new String[] { recipient });
+    i.putExtra(Intent.EXTRA_SUBJECT, subject);
+    i.putExtra(Intent.EXTRA_TEXT, body);
+    try {
+      startActivity(Intent.createChooser(i, "Send mail..."));
+    } catch (android.content.ActivityNotFoundException ex) {
+      Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+    }
   }
 
   public class SectionsPagerAdapter extends FragmentPagerAdapter {

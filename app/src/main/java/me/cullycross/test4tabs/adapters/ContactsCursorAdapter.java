@@ -64,14 +64,24 @@ public class ContactsCursorAdapter
   @Override public void onBindViewHolder(ContactItem holder, Cursor cursor) {
 
     initImage(holder, cursor);
-    initName(holder, cursor);
+
+    final String name = initName(holder, cursor);
 
     final String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
     final ContentResolver contentResolver = mContext.getContentResolver();
 
-    initPhones(holder, id, contentResolver);
-    initEmails(holder, id, contentResolver);
     initExpander(holder);
+    if (holder.mExpandArea.getVisibility() == View.VISIBLE) {
+      initPhones(holder, id, contentResolver);
+      initEmails(holder, id, contentResolver, name);
+    } else {
+      initEmpty(holder);
+    }
+  }
+
+  private void initEmpty(ContactItem holder) {
+    holder.mPhonesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+    holder.mEmailsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
   }
 
   private void initExpander(ContactItem holder) {
@@ -82,11 +92,12 @@ public class ContactsCursorAdapter
     }
   }
 
-  private void initName(ContactItem holder, Cursor cursor) {
+  private String initName(ContactItem holder, Cursor cursor) {
     final String name =
         cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
     holder.mName.setText(name);
+    return name;
   }
 
   private void initImage(ContactItem holder, Cursor cursor) {
@@ -100,7 +111,8 @@ public class ContactsCursorAdapter
     }
   }
 
-  private void initEmails(ContactItem holder, String id, ContentResolver contentResolver) {
+  private void initEmails(ContactItem holder, String id, ContentResolver contentResolver,
+      String name) {
     final Cursor emailCursor =
         contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
             ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", new String[] { id }, null);
@@ -109,7 +121,7 @@ public class ContactsCursorAdapter
         new ExpandedRecyclerViewLinearManager(mContext, LinearLayoutManager.VERTICAL, false);
 
     holder.mEmailsRecyclerView.setLayoutManager(emailManager);
-    holder.mEmailsRecyclerView.setAdapter(new EmailCursorAdapter(mContext, emailCursor));
+    holder.mEmailsRecyclerView.setAdapter(new EmailCursorAdapter(mContext, emailCursor, name));
   }
 
   private void initPhones(ContactItem holder, String id, ContentResolver contentResolver) {

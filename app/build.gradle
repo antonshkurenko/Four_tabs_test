@@ -1,6 +1,7 @@
 buildscript {
   repositories {
     mavenCentral()
+    maven { url "http://dl.bintray.com/tbruyelle/tbruyelle" }
   }
 
   dependencies {
@@ -34,6 +35,10 @@ android {
   }
 }
 
+repositories {
+  maven { url "http://dl.bintray.com/tbruyelle/tbruyelle" }
+}
+
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   testCompile 'junit:junit:4.12'
@@ -47,6 +52,8 @@ dependencies {
 
   compile 'io.reactivex:rxjava:1.0.14'
   compile 'io.reactivex:rxandroid:1.0.1'
+
+  compile 'com.tbruyelle.rxpermissions:rxpermissions:0.4.2@aar'
 }
 
 retrolambda {

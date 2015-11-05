@@ -1,15 +1,23 @@
 package me.cullycross.test4tabs.adapters;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import com.tbruyelle.rxpermissions.RxPermissions;
+import rx.subjects.PublishSubject;
+
 /**
  * Created by: Anton Shkurenko (cullycross)
  * Project: Test4tabs
@@ -18,6 +26,8 @@ import butterknife.ButterKnife;
  * Follow me: @tonyshkurenko
  */
 public class PhoneCursorAdapter extends CursorRecyclerViewAdapter<PhoneCursorAdapter.PhoneItem> {
+
+  private final PublishSubject<Void> mSubject = PublishSubject.create();
 
   public PhoneCursorAdapter(Context context, Cursor cursor) {
     super(context, cursor);
@@ -46,6 +56,23 @@ public class PhoneCursorAdapter extends CursorRecyclerViewAdapter<PhoneCursorAda
     public PhoneItem(View view) {
       super(view);
       ButterKnife.bind(this, view);
+
+      RxPermissions.getInstance(view.getContext())
+          .request(mSubject, Manifest.permission.CAMERA)
+          .subscribe(granted -> {
+            if (granted) {
+              final Intent intent = new Intent(Intent.ACTION_CALL);
+              intent.setData(Uri.parse("tel:" + mPhone.getText().toString()));
+              //noinspection ResourceType (it's for permissions)
+              mPhone.getContext().startActivity(intent);
+            } else {
+              Toast.makeText(mPhone.getContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+          });
+    }
+
+    @OnClick(android.R.id.text1) void call() {
+      mSubject.onNext(null);
     }
   }
 }

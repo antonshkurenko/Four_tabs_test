@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import me.cullycross.test4tabs.R;
+import butterknife.OnClick;
+import me.cullycross.test4tabs.activities.FourTabsActivity;
+import me.cullycross.test4tabs.fragments.EmailDialogFragment;
 
 /**
  * Created by: Anton Shkurenko (cullycross)
@@ -21,8 +23,11 @@ import me.cullycross.test4tabs.R;
  */
 public class EmailCursorAdapter extends CursorRecyclerViewAdapter<EmailCursorAdapter.EmailItem> {
 
-  public EmailCursorAdapter(Context context, Cursor cursor) {
+  private final String mName;
+
+  public EmailCursorAdapter(Context context, Cursor cursor, String name) {
     super(context, cursor);
+    mName = name;
   }
 
   @Override public EmailItem onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,6 +53,12 @@ public class EmailCursorAdapter extends CursorRecyclerViewAdapter<EmailCursorAda
     public EmailItem(View view) {
       super(view);
       ButterKnife.bind(this, view);
+    }
+
+    @OnClick(android.R.id.text1) void sendEmail(TextView t) {
+      final FourTabsActivity ctx = ((FourTabsActivity) t.getContext());
+      EmailDialogFragment.newInstance(t.getText().toString(), mName)
+          .show(ctx.getSupportFragmentManager(), null);
     }
   }
 }
