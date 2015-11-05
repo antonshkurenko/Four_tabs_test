@@ -1,12 +1,16 @@
 package me.cullycross.test4tabs.fragments;
 
-import android.content.ContentResolver;
+import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,14 +19,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import java.util.concurrent.TimeUnit;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.adapters.ContactsCursorAdapter;
 import me.cullycross.test4tabs.views.FastScrollerView;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.subjects.BehaviorSubject;
 
-public class ContactsFragment extends Fragment {
+public class ContactsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
   @Bind(R.id.recycler_view_contacts) RecyclerView mRecyclerViewContacts;
   @Bind(R.id.fastscroller) FastScrollerView mFastscroller;
+
+  private static final String SELECTION = ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
+  private static final int MINIMAL_SEARCH_LENGTH = 0;
+
+  private String mSearchString = "";
+  private String[] mSelectionArgs = { mSearchString };
+
+  private ContactsCursorAdapter mAdapter;
+  private ProgressDialog mDialog;
 
   public static ContactsFragment newInstance() {
     final ContactsFragment fragment = new ContactsFragment();
@@ -38,6 +55,11 @@ public class ContactsFragment extends Fragment {
     // Required empty public constructor
   }
 
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    getLoaderManager().initLoader(0, null, this);
+  }
+
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     // Inflate the layout for this fragment
@@ -46,11 +68,7 @@ public class ContactsFragment extends Fragment {
 
     setHasOptionsMenu(true);
 
-    final ContentResolver cr = getContext().getContentResolver();
-    final Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
-        "upper(" + ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + ") ASC");
-
-    final ContactsCursorAdapter adapter = new ContactsCursorAdapter(getContext(), cursor);
+    mAdapter = new ContactsCursorAdapter(getContext(), null);
 
     mRecyclerViewContacts.setLayoutManager(new LinearLayoutManager(getContext()) {
       @Override
@@ -68,7 +86,8 @@ public class ContactsFragment extends Fragment {
         final int lastVisibleItemPosition = findLastVisibleItemPosition();
         int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
         //if all items are shown, hide the fast-scroller
-        mFastscroller.setVisibility(adapter.getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
+        mFastscroller.setVisibility(
+            mAdapter.getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
       }
     });
 
@@ -76,7 +95,7 @@ public class ContactsFragment extends Fragment {
     mFastscroller.setViewsToUse(R.layout.fast_scroller_layout, R.id.fastscroller_bubble,
         R.id.fastscroller_handle);
 
-    mRecyclerViewContacts.setAdapter(adapter);
+    mRecyclerViewContacts.setAdapter(mAdapter);
 
     return view;
   }
@@ -89,19 +108,67 @@ public class ContactsFragment extends Fragment {
   @Override public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.menu_search, menu);
+
+    final MenuItem searchItem = menu.findItem(R.id.action_search);
+    final SearchView searchView = (SearchView) searchItem.getActionView();
+    getTextChangedObservable(searchView).debounce(750, TimeUnit.MILLISECONDS)
+        .distinctUntilChanged()
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnNext(string -> mSearchString = string)
+        .subscribe(string -> restartLoader());
   }
 
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
+  @Override public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_search) {
-      return true;
+    mDialog = ProgressDialog.show(getContext(), "Wait...", "Results are loading", true);
+
+    mSelectionArgs[0] = "%" + mSearchString + "%";
+    return new CursorLoader(getActivity(), ContactsContract.Contacts.CONTENT_URI, null, SELECTION,
+        mSelectionArgs, "upper(" + ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + ") ASC");
+  }
+
+  @Override public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mAdapter.changeCursor(data);
+
+    if (mDialog != null) {
+      mDialog.dismiss();
     }
+  }
 
-    return super.onOptionsItemSelected(item);
+  @Override public void onLoaderReset(Loader<Cursor> loader) {
+    mAdapter.changeCursor(null);
+  }
+
+  private Observable<String> getTextChangedObservable(SearchView searchView) {
+
+    final BehaviorSubject<String> subject = BehaviorSubject.create();
+    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+      @Override public boolean onQueryTextSubmit(String query) {
+        if (query.length() >= MINIMAL_SEARCH_LENGTH) {
+          mSearchString = query;
+          restartLoader();
+          return true;
+        }
+        return false;
+      }
+
+      @Override public boolean onQueryTextChange(String newText) {
+        if (newText.length() >= MINIMAL_SEARCH_LENGTH) {
+          subject.onNext(newText);
+          return true;
+        }
+        return false;
+      }
+    });
+    return subject;
+  }
+
+  private void restartLoader() {
+    final Loader<Object> loader = getLoaderManager().getLoader(0);
+    if (loader != null && !loader.isReset()) {
+      getLoaderManager().restartLoader(0, null, ContactsFragment.this);
+    } else {
+      getLoaderManager().initLoader(0, null, ContactsFragment.this);
+    }
   }
 }
