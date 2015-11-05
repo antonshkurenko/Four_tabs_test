@@ -43,7 +43,8 @@ public class EmailCursorAdapter extends CursorRecyclerViewAdapter<EmailCursorAda
     final String email = cursor.getString(
         cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 
-    holder.mEmail.setText(email);
+    holder.mEmail.setText("Send: " + email);
+    holder.mEmail.setTag(email);
   }
 
   class EmailItem extends RecyclerView.ViewHolder {
@@ -57,7 +58,7 @@ public class EmailCursorAdapter extends CursorRecyclerViewAdapter<EmailCursorAda
 
     @OnClick(android.R.id.text1) void sendEmail(TextView t) {
       final FourTabsActivity ctx = ((FourTabsActivity) t.getContext());
-      EmailDialogFragment.newInstance(t.getText().toString(), mName)
+      EmailDialogFragment.newInstance(t.getTag().toString(), mName)
           .show(ctx.getSupportFragmentManager(), null);
     }
   }

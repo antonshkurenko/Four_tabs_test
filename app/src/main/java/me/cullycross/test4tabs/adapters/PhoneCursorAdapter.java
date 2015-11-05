@@ -46,7 +46,8 @@ public class PhoneCursorAdapter extends CursorRecyclerViewAdapter<PhoneCursorAda
     final String phone =
         cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-    holder.mPhone.setText(phone);
+    holder.mPhone.setText("Call: " + phone);
+    holder.mPhone.setTag(phone);
   }
 
   class PhoneItem extends RecyclerView.ViewHolder {
@@ -62,7 +63,7 @@ public class PhoneCursorAdapter extends CursorRecyclerViewAdapter<PhoneCursorAda
           .subscribe(granted -> {
             if (granted) {
               final Intent intent = new Intent(Intent.ACTION_CALL);
-              intent.setData(Uri.parse("tel:" + mPhone.getText().toString()));
+              intent.setData(Uri.parse("tel:" + mPhone.getTag().toString()));
               //noinspection ResourceType (it's for permissions)
               mPhone.getContext().startActivity(intent);
             } else {
