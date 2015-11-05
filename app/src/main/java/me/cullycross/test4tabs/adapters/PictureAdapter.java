@@ -2,6 +2,7 @@ package me.cullycross.test4tabs.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +12,12 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.squareup.picasso.Picasso;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.activities.FullScreenImageActivity;
+import me.cullycross.test4tabs.fragments.PicturesFragment;
 
 /**
  * Created by: Anton Shkurenko (cullycross)
@@ -27,14 +31,18 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
   private static final String URL = "http://lorempixel.com/200/200/food/%d/%s";
 
   private final Context mContext;
+  private final PicturesFragment mFragment;
   private final Random mRandom;
 
-  private int mCount = 50;
+  private List<Pair<Integer, Integer>> mIntegerPairs;
 
-  public PictureAdapter(Context ctx) {
+  public PictureAdapter(PicturesFragment fragment) {
     super();
-    mContext = ctx;
+    mContext = fragment.getContext();
+    mFragment = fragment;
     mRandom = new Random();
+
+    initList();
   }
 
   @Override public DogItem onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -47,7 +55,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
 
   @Override public void onBindViewHolder(DogItem holder, final int position) {
 
-    final String path = String.format(URL, mRandom.nextInt(10) + 1, "Position " + position);
+    final Pair<Integer, Integer> pair = mIntegerPairs.get(position);
+
+    final String path = String.format(URL, pair.first, "Position " + pair.second);
     Picasso.with(mContext)
         .load(path)
         .fit()
@@ -58,7 +68,25 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
   }
 
   @Override public int getItemCount() {
-    return mCount;
+    return mIntegerPairs.size();
+  }
+
+  public void reset() {
+    initList();
+  }
+
+  public void remove(int random, int startPosition) {
+    final Pair<Integer, Integer> pair = new Pair<>(random, startPosition);
+    final int index = mIntegerPairs.indexOf(pair);
+    mIntegerPairs.remove(index);
+    notifyItemRemoved(index);
+  }
+
+  private void initList() {
+    mIntegerPairs = new ArrayList<>(50);
+    for (int i = 0; i < 50; i++) {
+      mIntegerPairs.add(new Pair<>(mRandom.nextInt(10) + 1, i));
+    }
   }
 
   class DogItem extends RecyclerView.ViewHolder {
@@ -71,8 +99,9 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
     }
 
     @OnClick(R.id.image) void openImage(View v) {
-      mContext.startActivity(new Intent(mContext, FullScreenImageActivity.class).putExtra(
-          FullScreenImageActivity.ARGS_PICTURE_PATH, ((String) v.getTag())));
+      mFragment.startActivityForResult(new Intent(mContext, FullScreenImageActivity.class).putExtra(
+              FullScreenImageActivity.ARGS_PICTURE_PATH, ((String) v.getTag())),
+          PicturesFragment.REQUEST_OPEN_IMAGE);
     }
   }
 }

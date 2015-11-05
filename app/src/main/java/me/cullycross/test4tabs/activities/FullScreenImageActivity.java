@@ -114,7 +114,8 @@ public class FullScreenImageActivity extends AppCompatActivity {
           return true;
         }
         case R.id.action_delete: {
-
+          setResult(RESULT_OK, getIntent());
+          finish();
         }
       }
 
