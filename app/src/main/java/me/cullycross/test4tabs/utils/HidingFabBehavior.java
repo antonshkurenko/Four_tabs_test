@@ -16,7 +16,7 @@ import android.view.View;
  *
  * See
  * <a href="https://guides.codepath.com/android/Floating-Action-Buttons#using-coordinatorlayout">
- *   this article</>
+ * this article</>
  */
 public class HidingFabBehavior extends FloatingActionButton.Behavior {
 
@@ -38,7 +38,8 @@ public class HidingFabBehavior extends FloatingActionButton.Behavior {
 
     if (dyConsumed > 0 && child.getVisibility() == View.VISIBLE) {
       child.hide();
-    } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
+    } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE
+        && ((Boolean) child.getTag())) {
       child.show();
     }
   }
