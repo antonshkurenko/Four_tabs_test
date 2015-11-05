@@ -19,7 +19,7 @@ import me.cullycross.test4tabs.R;
  * Code style: SquareAndroid (https://github.com/square/java-code-styles)
  * Follow me: @tonyshkurenko
  */
-public class DoggyAdapter extends RecyclerView.Adapter<DoggyAdapter.DogItem> {
+public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem> {
 
   private static final String URL = "http://lorempixel.com/200/200/food/%d/%s";
 
@@ -28,7 +28,7 @@ public class DoggyAdapter extends RecyclerView.Adapter<DoggyAdapter.DogItem> {
 
   private int mCount = 50;
 
-  public DoggyAdapter(Context ctx) {
+  public PictureAdapter(Context ctx) {
     super();
     mContext = ctx;
     mRandom = new Random();

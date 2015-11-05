@@ -9,11 +9,14 @@ import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.cullycross.test4tabs.R;
-import me.cullycross.test4tabs.adapters.DoggyAdapter;
+import me.cullycross.test4tabs.activities.FourTabsActivity;
+import me.cullycross.test4tabs.adapters.PictureAdapter;
 
-public class PicturesFragment extends Fragment {
+public class PicturesFragment extends Fragment implements FourTabsActivity.FabClickListener {
 
   @Bind(R.id.recycler_view_images) RecyclerView mRecyclerViewImages;
+
+  private PictureAdapter mAdapter;
 
   public static PicturesFragment newInstance() {
     final PicturesFragment fragment = new PicturesFragment();
@@ -35,12 +38,17 @@ public class PicturesFragment extends Fragment {
     View view = inflater.inflate(R.layout.fragment_pictures, container, false);
     ButterKnife.bind(this, view);
 
-    mRecyclerViewImages.setAdapter(new DoggyAdapter(getContext()));
+    mAdapter = new PictureAdapter(getContext());
+    mRecyclerViewImages.setAdapter(mAdapter);
     return view;
   }
 
   @Override public void onDestroyView() {
     super.onDestroyView();
     ButterKnife.unbind(this);
+  }
+
+  @Override public void onFabClick() {
+    mAdapter.notifyDataSetChanged();
   }
 }

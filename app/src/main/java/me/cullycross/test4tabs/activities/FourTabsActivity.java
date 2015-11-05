@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnPageChange;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.fragments.ContactsFragment;
@@ -85,6 +86,18 @@ public class FourTabsActivity extends AppCompatActivity
         mFab.hide();
         break;
     }
+  }
+
+  @OnClick(R.id.fab) public void fabClick() {
+    Object o = mViewPager.getAdapter().instantiateItem(mViewPager, mViewPager.getCurrentItem());
+
+    if (o != null && o instanceof FabClickListener) {
+      ((FabClickListener) o).onFabClick();
+    }
+  }
+
+  public interface FabClickListener {
+    void onFabClick();
   }
 
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
