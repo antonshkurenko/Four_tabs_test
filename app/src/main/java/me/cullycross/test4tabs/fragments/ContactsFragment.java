@@ -17,10 +17,12 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.adapters.ContactsCursorAdapter;
+import me.cullycross.test4tabs.views.FastScrollerView;
 
 public class ContactsFragment extends Fragment {
 
   @Bind(R.id.recycler_view_contacts) RecyclerView mRecyclerViewContacts;
+  @Bind(R.id.fastscroller) FastScrollerView mFastscroller;
 
   public static ContactsFragment newInstance() {
     final ContactsFragment fragment = new ContactsFragment();
@@ -48,9 +50,33 @@ public class ContactsFragment extends Fragment {
     final Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null,
         "upper(" + ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + ") ASC");
 
-    final LinearLayoutManager manager = new LinearLayoutManager(getContext());
-    mRecyclerViewContacts.setLayoutManager(manager);
-    mRecyclerViewContacts.setAdapter(new ContactsCursorAdapter(getContext(), cursor));
+    final ContactsCursorAdapter adapter = new ContactsCursorAdapter(getContext(), cursor);
+
+    mRecyclerViewContacts.setLayoutManager(new LinearLayoutManager(getContext()) {
+      @Override
+      public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        super.onLayoutChildren(recycler, state);
+        final int firstVisibleItemPosition = findFirstVisibleItemPosition();
+        if (firstVisibleItemPosition != 0) {
+          // this avoids trying to handle un-needed calls
+          if (firstVisibleItemPosition == -1) {
+            //not initialized, or no items shown, so hide fast-scroller
+            mFastscroller.setVisibility(View.GONE);
+          }
+          return;
+        }
+        final int lastVisibleItemPosition = findLastVisibleItemPosition();
+        int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
+        //if all items are shown, hide the fast-scroller
+        mFastscroller.setVisibility(adapter.getItemCount() > itemsShown ? View.VISIBLE : View.GONE);
+      }
+    });
+
+    mFastscroller.setRecyclerView(mRecyclerViewContacts);
+    mFastscroller.setViewsToUse(R.layout.fast_scroller_layout, R.id.fastscroller_bubble,
+        R.id.fastscroller_handle);
+
+    mRecyclerViewContacts.setAdapter(adapter);
 
     return view;
   }

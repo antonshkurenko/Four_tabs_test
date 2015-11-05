@@ -32,7 +32,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
 
   private Context mContext;
 
-  private Cursor mCursor;
+  private Cursor c;
 
   private boolean mDataValid;
 
@@ -42,31 +42,31 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
 
   public CursorRecyclerViewAdapter(Context context, Cursor cursor) {
     mContext = context;
-    mCursor = cursor;
+    c = cursor;
     mDataValid = cursor != null;
-    mRowIdColumn = mDataValid ? mCursor.getColumnIndex("_id") : -1;
+    mRowIdColumn = mDataValid ? c.getColumnIndex("_id") : -1;
     mDataSetObserver = new NotifyingDataSetObserver();
-    if (mCursor != null) {
-      mCursor.registerDataSetObserver(mDataSetObserver);
+    if (c != null) {
+      c.registerDataSetObserver(mDataSetObserver);
     }
   }
 
   public Cursor getCursor() {
-    return mCursor;
+    return c;
   }
 
   @Override
   public int getItemCount() {
-    if (mDataValid && mCursor != null) {
-      return mCursor.getCount();
+    if (mDataValid && c != null) {
+      return c.getCount();
     }
     return 0;
   }
 
   @Override
   public long getItemId(int position) {
-    if (mDataValid && mCursor != null && mCursor.moveToPosition(position)) {
-      return mCursor.getLong(mRowIdColumn);
+    if (mDataValid && c != null && c.moveToPosition(position)) {
+      return c.getLong(mRowIdColumn);
     }
     return 0;
   }
@@ -83,10 +83,10 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     if (!mDataValid) {
       throw new IllegalStateException("this should only be called when the cursor is valid");
     }
-    if (!mCursor.moveToPosition(position)) {
+    if (!c.moveToPosition(position)) {
       throw new IllegalStateException("couldn't move cursor to position " + position);
     }
-    onBindViewHolder(viewHolder, mCursor);
+    onBindViewHolder(viewHolder, c);
   }
 
   /**
@@ -106,17 +106,17 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
    * closed.
    */
   public Cursor swapCursor(Cursor newCursor) {
-    if (newCursor == mCursor) {
+    if (newCursor == c) {
       return null;
     }
-    final Cursor oldCursor = mCursor;
+    final Cursor oldCursor = c;
     if (oldCursor != null && mDataSetObserver != null) {
       oldCursor.unregisterDataSetObserver(mDataSetObserver);
     }
-    mCursor = newCursor;
-    if (mCursor != null) {
+    c = newCursor;
+    if (c != null) {
       if (mDataSetObserver != null) {
-        mCursor.registerDataSetObserver(mDataSetObserver);
+        c.registerDataSetObserver(mDataSetObserver);
       }
       mRowIdColumn = newCursor.getColumnIndexOrThrow("_id");
       mDataValid = true;

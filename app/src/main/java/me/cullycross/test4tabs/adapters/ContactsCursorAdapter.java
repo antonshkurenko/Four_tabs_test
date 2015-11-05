@@ -15,9 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.squareup.picasso.Picasso;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.views.ExpandedRecyclerViewLinearManager;
+import me.cullycross.test4tabs.views.FastScrollerView;
 import me.cullycross.test4tabs.views.UntouchableRecyclerView;
 
 /**
@@ -28,7 +30,8 @@ import me.cullycross.test4tabs.views.UntouchableRecyclerView;
  * Follow me: @tonyshkurenko
  */
 public class ContactsCursorAdapter
-    extends CursorRecyclerViewAdapter<ContactsCursorAdapter.ContactItem> {
+    extends CursorRecyclerViewAdapter<ContactsCursorAdapter.ContactItem>
+    implements FastScrollerView.BubbleTextGetter {
 
   private Context mContext;
 
@@ -38,6 +41,16 @@ public class ContactsCursorAdapter
     super(context, cursor);
 
     mContext = context;
+  }
+
+  @Override public String getTextToShowInBubble(int pos) {
+    final Cursor c = getCursor();
+    if (c != null && c.moveToPosition(pos)) {
+      return c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+          .toLowerCase()
+          .substring(0, 2);
+    }
+    return "";
   }
 
   @Override public ContactItem onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -67,19 +80,6 @@ public class ContactsCursorAdapter
     } else {
       holder.mExpandArea.setVisibility(View.GONE);
     }
-
-    holder.mContactLayout.setOnClickListener(v -> {
-      if (mExpandedPosition >= 0) {
-        int prev = mExpandedPosition;
-        notifyItemChanged(prev);
-      }
-      if (mExpandedPosition != holder.getAdapterPosition()) {
-        mExpandedPosition = holder.getAdapterPosition();
-      } else {
-        mExpandedPosition = -1;
-      }
-      notifyItemChanged(mExpandedPosition);
-    });
   }
 
   private void initName(ContactItem holder, Cursor cursor) {
@@ -124,9 +124,8 @@ public class ContactsCursorAdapter
     holder.mPhonesRecyclerView.setAdapter(new PhoneCursorAdapter(mContext, phoneCursor));
   }
 
-  static class ContactItem extends RecyclerView.ViewHolder {
+  class ContactItem extends RecyclerView.ViewHolder {
 
-    @Bind(R.id.contact_layout) View mContactLayout;
     @Bind(R.id.photo) ImageView mPhoto;
     @Bind(R.id.name) TextView mName;
     @Bind(R.id.phones_recycler_view) UntouchableRecyclerView mPhonesRecyclerView;
@@ -136,6 +135,22 @@ public class ContactsCursorAdapter
     public ContactItem(View view) {
       super(view);
       ButterKnife.bind(this, view);
+    }
+
+    @OnClick(R.id.contact_layout) void setExpanded() {
+
+      if (mExpandedPosition >= 0) {
+        final int prev = mExpandedPosition;
+        notifyItemChanged(prev);
+      }
+
+      if (mExpandedPosition == getAdapterPosition()) {
+        mExpandedPosition = -1;
+        return;
+      }
+
+      mExpandedPosition = getAdapterPosition();
+      notifyItemChanged(mExpandedPosition);
     }
   }
 }
