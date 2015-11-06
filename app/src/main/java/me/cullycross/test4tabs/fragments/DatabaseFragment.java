@@ -18,6 +18,7 @@ import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.activities.FourTabsActivity;
 import me.cullycross.test4tabs.adapters.EntityCursorAdapter;
 import me.cullycross.test4tabs.content.EntityContentProvider;
+import me.cullycross.test4tabs.fragments.dialogs.EntityDialogFragment;
 import me.cullycross.test4tabs.pojos.SomeEntity;
 
 public class DatabaseFragment extends Fragment

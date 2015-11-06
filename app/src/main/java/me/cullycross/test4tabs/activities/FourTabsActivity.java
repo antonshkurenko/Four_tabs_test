@@ -19,10 +19,10 @@ import butterknife.OnPageChange;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.fragments.ContactsFragment;
 import me.cullycross.test4tabs.fragments.DatabaseFragment;
-import me.cullycross.test4tabs.fragments.EmailDialogFragment;
-import me.cullycross.test4tabs.fragments.EntityDialogFragment;
 import me.cullycross.test4tabs.fragments.PicturesFragment;
 import me.cullycross.test4tabs.fragments.SinglePictureFragment;
+import me.cullycross.test4tabs.fragments.dialogs.EmailDialogFragment;
+import me.cullycross.test4tabs.fragments.dialogs.EntityDialogFragment;
 import me.cullycross.test4tabs.pojos.SomeEntity;
 
 public class FourTabsActivity extends AppCompatActivity

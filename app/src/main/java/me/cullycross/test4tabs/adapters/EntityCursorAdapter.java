@@ -19,7 +19,7 @@ import java.util.Locale;
 import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.activities.FourTabsActivity;
 import me.cullycross.test4tabs.fragments.DatabaseFragment;
-import me.cullycross.test4tabs.fragments.EntityDialogFragment;
+import me.cullycross.test4tabs.fragments.dialogs.EntityDialogFragment;
 import me.cullycross.test4tabs.pojos.SomeEntity;
 import me.cullycross.test4tabs.utils.ColorUtils;
 
@@ -33,7 +33,7 @@ import me.cullycross.test4tabs.utils.ColorUtils;
 public class EntityCursorAdapter extends CursorRecyclerViewAdapter<EntityCursorAdapter.EntityItem> {
 
   private static final SimpleDateFormat DATE_FORMAT =
-      new SimpleDateFormat("EEEE, MMMM dd yyyy", Locale.getDefault());
+      new SimpleDateFormat("EE, MM/dd/yy HH:mm:ss.SSS", Locale.getDefault());
 
   private Context mContext;
   private DatabaseFragment mFragment;

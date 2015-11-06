@@ -1,4 +1,4 @@
-package me.cullycross.test4tabs.fragments;
+package me.cullycross.test4tabs.fragments.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;

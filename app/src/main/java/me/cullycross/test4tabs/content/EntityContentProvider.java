@@ -206,7 +206,7 @@ public class EntityContentProvider extends ContentProvider {
       final Random rnd = new Random();
 
       ContentValues cv = new ContentValues();
-      for (int i = 1; i <= 3; i++) {
+      for (int i = 1; i <= 8; i++) {
         cv.put(ENTITY_NAME, "name " + i);
         cv.put(ENTITY_DESCRIPTION, new String(new char[i]).replace("\0", DUMMY_STRING));
         cv.put(ENTITY_ACTIVE, rnd.nextBoolean());

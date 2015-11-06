@@ -12,7 +12,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.cullycross.test4tabs.activities.FourTabsActivity;
-import me.cullycross.test4tabs.fragments.EmailDialogFragment;
+import me.cullycross.test4tabs.fragments.dialogs.EmailDialogFragment;
 
 /**
  * Created by: Anton Shkurenko (cullycross)
