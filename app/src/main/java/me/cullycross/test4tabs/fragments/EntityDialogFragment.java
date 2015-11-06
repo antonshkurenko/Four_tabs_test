@@ -67,7 +67,7 @@ public class EntityDialogFragment extends DialogFragment
     ButterKnife.bind(this, dialogView);
 
     if (getArguments() != null) {
-      mTitle.setText(getArguments().getString(ARGS_BODY));
+      mTitle.setText(getArguments().getString(ARGS_TITLE));
       mBody.setText(getArguments().getString(ARGS_BODY));
     }
 

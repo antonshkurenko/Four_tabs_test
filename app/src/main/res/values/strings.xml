@@ -2,4 +2,8 @@
   <string name="app_name">Test4tabs</string>
   <string name="action_settings">Settings</string>
   <string name="section_format">Hello World from section: %1$d</string>
+
+  <!-- Pre-compiled unique id for tagging views -->
+  <item type="id" name="tag_key_id"/>
+  <item type="id" name="tag_key_row"/>
 </resources>

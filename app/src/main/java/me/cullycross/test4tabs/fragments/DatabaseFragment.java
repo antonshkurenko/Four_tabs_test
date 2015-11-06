@@ -18,12 +18,12 @@ import me.cullycross.test4tabs.R;
 import me.cullycross.test4tabs.activities.FourTabsActivity;
 import me.cullycross.test4tabs.adapters.EntityCursorAdapter;
 import me.cullycross.test4tabs.content.EntityContentProvider;
+import me.cullycross.test4tabs.pojos.SomeEntity;
 
 public class DatabaseFragment extends Fragment
     implements LoaderManager.LoaderCallbacks<Cursor>, FourTabsActivity.FabClickListener,
     FourTabsActivity.RowUpdateListener {
 
-  public static final int FLAG_NEW_ENTITY = -1;
   public static final int FLAG_START = -2;
 
   @Bind(R.id.recycler_view_entities) RecyclerView mRecyclerViewEntities;
@@ -31,7 +31,8 @@ public class DatabaseFragment extends Fragment
   private ProgressDialog mDialog;
   private EntityCursorAdapter mAdapter;
 
-  private int mPositionToScroll = FLAG_START; // save here position to scroll after loader is restarted
+  private int mPositionToScroll = FLAG_START;
+      // save here position to scroll after loader is restarted
 
   public static DatabaseFragment newInstance() {
     final DatabaseFragment fragment = new DatabaseFragment();
@@ -57,7 +58,7 @@ public class DatabaseFragment extends Fragment
     View view = inflater.inflate(R.layout.fragment_database, container, false);
     ButterKnife.bind(this, view);
 
-    mAdapter = new EntityCursorAdapter(getContext(), null);
+    mAdapter = new EntityCursorAdapter(this, null);
     mRecyclerViewEntities.setLayoutManager(new LinearLayoutManager(getContext()));
     mRecyclerViewEntities.setAdapter(mAdapter);
 
@@ -78,8 +79,8 @@ public class DatabaseFragment extends Fragment
       mDialog.dismiss();
     }
 
-    if(mPositionToScroll != FLAG_START) {
-      if(mPositionToScroll == FLAG_NEW_ENTITY) {
+    if (mPositionToScroll != FLAG_START) {
+      if (mPositionToScroll == SomeEntity.FLAG_NEW_ENTITY) {
         mRecyclerViewEntities.smoothScrollToPosition(mAdapter.getItemCount() - 1);
       } else {
         mRecyclerViewEntities.smoothScrollToPosition(mPositionToScroll);
@@ -98,8 +99,8 @@ public class DatabaseFragment extends Fragment
 
   @Override public void onFabClick() {
 
-    EntityDialogFragment.newInstance(FLAG_NEW_ENTITY, null, null, FLAG_NEW_ENTITY)
-        .show(getActivity().getSupportFragmentManager(), null);
+    EntityDialogFragment.newInstance(SomeEntity.FLAG_NEW_ENTITY, null, null,
+        SomeEntity.FLAG_NEW_ENTITY).show(getActivity().getSupportFragmentManager(), null);
   }
 
   @Override public void onRowUpdate(int position) {
@@ -107,6 +108,10 @@ public class DatabaseFragment extends Fragment
     // only swapCursor with stableIds
     restartLoader();
     mPositionToScroll = position;
+  }
+
+  public void setPositionToScroll(int positionToScroll) {
+    mPositionToScroll = positionToScroll;
   }
 
   private void restartLoader() {

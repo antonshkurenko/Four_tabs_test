@@ -6,6 +6,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import me.cullycross.test4tabs.content.EntityContentProvider;
+import me.cullycross.test4tabs.utils.RxHelper;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static me.cullycross.test4tabs.content.EntityContentProvider.ENTITY_ACTIVE;
 import static me.cullycross.test4tabs.content.EntityContentProvider.ENTITY_CONTENT_URI;
@@ -23,20 +28,35 @@ import static me.cullycross.test4tabs.content.EntityContentProvider.ENTITY_NAME;
  */
 public class SomeEntity {
 
-  private int mId;
+  public static final int FLAG_NEW_ENTITY = -1;
+
+  private int mId = FLAG_NEW_ENTITY;
   private String mName;
   private String mDescription;
   private boolean mIsActive;
   private long mUpdatedMillis;
 
-  @Nullable public static SomeEntity fromDatabase(Context ctx, int id) {
-    final Uri uri = ContentUris.withAppendedId(ENTITY_CONTENT_URI, id);
-    final Cursor c = ctx.getContentResolver().query(uri, null, null, null, null);
-    if (c != null && c.moveToFirst()) {
-      return fromCursor(c);
-    } else {
-      return null;
+  public static void fromDatabase(Context ctx, int id, FromDatabaseCallback callback) {
+
+    if (id == FLAG_NEW_ENTITY) {
+      callback.fromDatabase(null);
+      return;
     }
+
+    final Uri uri = ContentUris.withAppendedId(ENTITY_CONTENT_URI, id);
+
+    RxHelper.makeColdObservable(() -> ctx.getContentResolver().query(uri, null, null, null, null))
+        .subscribeOn(Schedulers.computation())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(c -> {
+          if (c != null && c.moveToFirst()) {
+            final SomeEntity entity = fromCursor(c);
+            c.close();
+            callback.fromDatabase(entity);
+          } else {
+            callback.fromDatabase(null);
+          }
+        });
   }
 
   public static SomeEntity fromCursor(Cursor c) {
@@ -60,18 +80,42 @@ public class SomeEntity {
 
   /**
    * for fabric methods
+   *
    * @param id database id
    * @param name entity name
    * @param description entity description
    * @param isActive is entity active
    * @param updatedMillis last update time
    */
-  private SomeEntity(int id, String name, String description, boolean isActive, long updatedMillis) {
+  private SomeEntity(int id, String name, String description, boolean isActive,
+      long updatedMillis) {
     mId = id;
     mName = name;
     mDescription = description;
     mIsActive = isActive;
     mUpdatedMillis = updatedMillis;
+  }
+
+  public void save(Context ctx) {
+
+    Observable<Void> obs;
+    if (mId == FLAG_NEW_ENTITY) {
+      obs = RxHelper.makeColdObservable(() -> {
+        ctx.getContentResolver()
+            .insert(EntityContentProvider.ENTITY_CONTENT_URI, toContentValues());
+        return null;
+      });
+
+    } else {
+      final Uri uri = ContentUris.withAppendedId(EntityContentProvider.ENTITY_CONTENT_URI, mId);
+      obs = RxHelper.makeColdObservable(() -> {
+        ctx.getContentResolver().update(uri, toContentValues(), null, null);
+        return null;
+      });
+    }
+    obs.subscribeOn(Schedulers.computation())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe();
   }
 
   public ContentValues toContentValues() {
@@ -139,4 +183,8 @@ public class SomeEntity {
   }
 
   /***********************/
+
+  public interface FromDatabaseCallback {
+    void fromDatabase(@Nullable SomeEntity entity);
+  }
 }

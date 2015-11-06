@@ -1,8 +1,6 @@
 package me.cullycross.test4tabs.activities;
 
-import android.content.ContentUris;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -19,7 +17,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnPageChange;
 import me.cullycross.test4tabs.R;
-import me.cullycross.test4tabs.content.EntityContentProvider;
 import me.cullycross.test4tabs.fragments.ContactsFragment;
 import me.cullycross.test4tabs.fragments.DatabaseFragment;
 import me.cullycross.test4tabs.fragments.EmailDialogFragment;
@@ -77,27 +74,20 @@ public class FourTabsActivity extends AppCompatActivity
 
     final Object o = currentFragment();
 
-    if(!(o instanceof RowUpdateListener)) {
+    if (!(o instanceof RowUpdateListener)) {
       return;
     }
 
-    if (id != DatabaseFragment.FLAG_NEW_ENTITY) {
-      final SomeEntity entity = SomeEntity.fromDatabase(this, id);
+    SomeEntity.fromDatabase(this, id, entity -> {
       if (entity != null) {
         entity.setName(title);
         entity.setDescription(body);
-        final Uri uri = ContentUris.withAppendedId(EntityContentProvider.ENTITY_CONTENT_URI, id);
-        getContentResolver().update(uri, entity.toContentValues(), null, null);
       } else {
-        Toast.makeText(FourTabsActivity.this, "Entity not found", Toast.LENGTH_SHORT).show();
+        entity = new SomeEntity(title, body);
       }
-    } else {
-      final SomeEntity entity = new SomeEntity(title, body);
-      getContentResolver().insert(EntityContentProvider.ENTITY_CONTENT_URI,
-          entity.toContentValues());
-    }
-
-    ((RowUpdateListener) o).onRowUpdate(row);
+      entity.save(this);
+      ((RowUpdateListener) o).onRowUpdate(row);
+    });
   }
 
   @OnPageChange(R.id.container) public void onPageSelected(int position) {
