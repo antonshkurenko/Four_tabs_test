@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:id="@+id/entity_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -45,9 +46,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:maxLines="1"
+        android:gravity="top|start"
+        android:scrollbars="vertical"
         android:textColor="@android:color/black"
-        tools:text="LOREM IPSUM LOREM IPSUM "
+        tools:text="LOREM IPSUM LOREM IPSUM"
         />
 
   </LinearLayout>

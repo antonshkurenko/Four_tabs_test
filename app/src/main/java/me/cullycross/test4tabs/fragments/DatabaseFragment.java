@@ -15,15 +15,23 @@ import android.view.ViewGroup;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.cullycross.test4tabs.R;
+import me.cullycross.test4tabs.activities.FourTabsActivity;
 import me.cullycross.test4tabs.adapters.EntityCursorAdapter;
 import me.cullycross.test4tabs.content.EntityContentProvider;
 
-public class DatabaseFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DatabaseFragment extends Fragment
+    implements LoaderManager.LoaderCallbacks<Cursor>, FourTabsActivity.FabClickListener,
+    FourTabsActivity.RowUpdateListener {
+
+  public static final int FLAG_NEW_ENTITY = -1;
+  public static final int FLAG_START = -2;
 
   @Bind(R.id.recycler_view_entities) RecyclerView mRecyclerViewEntities;
 
   private ProgressDialog mDialog;
   private EntityCursorAdapter mAdapter;
+
+  private int mPositionToScroll = FLAG_START; // save here position to scroll after loader is restarted
 
   public static DatabaseFragment newInstance() {
     final DatabaseFragment fragment = new DatabaseFragment();
@@ -37,6 +45,11 @@ public class DatabaseFragment extends Fragment implements LoaderManager.LoaderCa
 
   public DatabaseFragment() {
     // Required empty public constructor
+  }
+
+  @Override public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    getLoaderManager().initLoader(0, null, this);
   }
 
   @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,6 +77,14 @@ public class DatabaseFragment extends Fragment implements LoaderManager.LoaderCa
     if (mDialog != null) {
       mDialog.dismiss();
     }
+
+    if(mPositionToScroll != FLAG_START) {
+      if(mPositionToScroll == FLAG_NEW_ENTITY) {
+        mRecyclerViewEntities.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+      } else {
+        mRecyclerViewEntities.smoothScrollToPosition(mPositionToScroll);
+      }
+    }
   }
 
   @Override public void onLoaderReset(Loader<Cursor> loader) {
@@ -73,5 +94,27 @@ public class DatabaseFragment extends Fragment implements LoaderManager.LoaderCa
   @Override public void onDestroyView() {
     super.onDestroyView();
     ButterKnife.unbind(this);
+  }
+
+  @Override public void onFabClick() {
+
+    EntityDialogFragment.newInstance(FLAG_NEW_ENTITY, null, null, FLAG_NEW_ENTITY)
+        .show(getActivity().getSupportFragmentManager(), null);
+  }
+
+  @Override public void onRowUpdate(int position) {
+    // bad decision, have to use notifyItemInserted/Changed (not implemented in this cursor adapter)
+    // only swapCursor with stableIds
+    restartLoader();
+    mPositionToScroll = position;
+  }
+
+  private void restartLoader() {
+    final Loader<Object> loader = getLoaderManager().getLoader(0);
+    if (loader != null && !loader.isReset()) {
+      getLoaderManager().restartLoader(0, null, DatabaseFragment.this);
+    } else {
+      getLoaderManager().initLoader(0, null, DatabaseFragment.this);
+    }
   }
 }

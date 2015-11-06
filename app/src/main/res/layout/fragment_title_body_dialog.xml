@@ -5,15 +5,15 @@
     android:layout_height="wrap_content">
 
   <EditText
-      android:id="@+id/email_subject"
+      android:id="@+id/title"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:maxLength="120"
       android:singleLine="true"
       android:padding="8dp"
-      android:hint="Subject" />
+      android:hint="Title" />
   <EditText
-      android:id="@+id/email_body"
+      android:id="@+id/body"
       android:inputType="textMultiLine"
       android:gravity="top|start"
       android:layout_width="match_parent"

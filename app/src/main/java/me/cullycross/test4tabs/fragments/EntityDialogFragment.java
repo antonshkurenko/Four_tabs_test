@@ -14,28 +14,36 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.cullycross.test4tabs.R;
 
-public class EmailDialogFragment extends DialogFragment implements DialogInterface.OnClickListener {
+public class EntityDialogFragment extends DialogFragment
+    implements DialogInterface.OnClickListener {
 
-  @Bind(R.id.title) TextView mSubject;
+  @Bind(R.id.title) TextView mTitle;
   @Bind(R.id.body) TextView mBody;
 
-  private static final String ARGS_EMAIL = "all_you_need_is_love";
-  private static final String ARGS_NAME = "what_s_in_your_head";
+  private static final String ARGS_ID = "when_life_brings_trouble";
+  private static final String ARGS_TITLE = "you_can_fight_or_run_away";
+  private static final String ARGS_BODY =
+      "stay_strong_through_the_struggle_that_s_what_life_is_about";
+
+  private static final String ARGS_ROW = "oh_baby_it_s_a_wild_world";
 
   private OnFragmentInteractionListener mListener;
 
-  public static EmailDialogFragment newInstance(String email, String name) {
-    final EmailDialogFragment fragment = new EmailDialogFragment();
+  public static EntityDialogFragment newInstance(int id, String title, String body, int row) {
+    final EntityDialogFragment fragment = new EntityDialogFragment();
     final Bundle args = new Bundle();
 
-    args.putString(ARGS_EMAIL, email);
-    args.putString(ARGS_NAME, name);
+    args.putInt(ARGS_ID, id);
+    args.putString(ARGS_TITLE, title);
+    args.putString(ARGS_BODY, body);
+
+    args.putInt(ARGS_ROW, row);
 
     fragment.setArguments(args);
     return fragment;
   }
 
-  public EmailDialogFragment() {
+  public EntityDialogFragment() {
     // Required empty public constructor
   }
 
@@ -58,12 +66,12 @@ public class EmailDialogFragment extends DialogFragment implements DialogInterfa
 
     ButterKnife.bind(this, dialogView);
 
-    if(getArguments() != null) {
-      mSubject.setText("Hello, " + getArguments().getString(ARGS_NAME));
-      mBody.setText("Dear, " + getArguments().getString(ARGS_NAME));
+    if (getArguments() != null) {
+      mTitle.setText(getArguments().getString(ARGS_BODY));
+      mBody.setText(getArguments().getString(ARGS_BODY));
     }
 
-    builder.setView(dialogView).setPositiveButton("Send", this).setNegativeButton("Cancel", null);
+    builder.setView(dialogView).setPositiveButton("Save", this).setNegativeButton("Cancel", null);
     return builder.create();
   }
 
@@ -76,14 +84,14 @@ public class EmailDialogFragment extends DialogFragment implements DialogInterfa
     switch (which) {
       case DialogInterface.BUTTON_POSITIVE:
         if (getArguments() != null) {
-          mListener.onSendEmail(getArguments().getString(ARGS_EMAIL), mSubject.getText().toString(),
-              mBody.getText().toString());
+          mListener.onSubmit(getArguments().getInt(ARGS_ID), mTitle.getText().toString(),
+              mBody.getText().toString(), getArguments().getInt(ARGS_ROW));
         }
         break;
     }
   }
 
   public interface OnFragmentInteractionListener {
-    void onSendEmail(String recipient, String subject, String body);
+    void onSubmit(int id, String title, String body, int row);
   }
 }

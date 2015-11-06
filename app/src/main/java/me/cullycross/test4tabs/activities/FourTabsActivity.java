@@ -1,6 +1,8 @@
 package me.cullycross.test4tabs.activities;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -17,14 +19,18 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnPageChange;
 import me.cullycross.test4tabs.R;
+import me.cullycross.test4tabs.content.EntityContentProvider;
 import me.cullycross.test4tabs.fragments.ContactsFragment;
 import me.cullycross.test4tabs.fragments.DatabaseFragment;
 import me.cullycross.test4tabs.fragments.EmailDialogFragment;
+import me.cullycross.test4tabs.fragments.EntityDialogFragment;
 import me.cullycross.test4tabs.fragments.PicturesFragment;
 import me.cullycross.test4tabs.fragments.SinglePictureFragment;
+import me.cullycross.test4tabs.pojos.SomeEntity;
 
 public class FourTabsActivity extends AppCompatActivity
-    implements EmailDialogFragment.OnFragmentInteractionListener {
+    implements EmailDialogFragment.OnFragmentInteractionListener,
+    EntityDialogFragment.OnFragmentInteractionListener {
 
   public static final int CONTACTS_POS = 0;
   public static final int DATABASE_POS = 1;
@@ -67,6 +73,33 @@ public class FourTabsActivity extends AppCompatActivity
     }
   }
 
+  @Override public void onSubmit(int id, String title, String body, int row) {
+
+    final Object o = currentFragment();
+
+    if(!(o instanceof RowUpdateListener)) {
+      return;
+    }
+
+    if (id != DatabaseFragment.FLAG_NEW_ENTITY) {
+      final SomeEntity entity = SomeEntity.fromDatabase(this, id);
+      if (entity != null) {
+        entity.setName(title);
+        entity.setDescription(body);
+        final Uri uri = ContentUris.withAppendedId(EntityContentProvider.ENTITY_CONTENT_URI, id);
+        getContentResolver().update(uri, entity.toContentValues(), null, null);
+      } else {
+        Toast.makeText(FourTabsActivity.this, "Entity not found", Toast.LENGTH_SHORT).show();
+      }
+    } else {
+      final SomeEntity entity = new SomeEntity(title, body);
+      getContentResolver().insert(EntityContentProvider.ENTITY_CONTENT_URI,
+          entity.toContentValues());
+    }
+
+    ((RowUpdateListener) o).onRowUpdate(row);
+  }
+
   @OnPageChange(R.id.container) public void onPageSelected(int position) {
     switch (position) {
       case DATABASE_POS:
@@ -89,15 +122,23 @@ public class FourTabsActivity extends AppCompatActivity
   }
 
   @OnClick(R.id.fab) public void fabClick() {
-    Object o = mViewPager.getAdapter().instantiateItem(mViewPager, mViewPager.getCurrentItem());
+    final Object o = currentFragment();
 
     if (o != null && o instanceof FabClickListener) {
       ((FabClickListener) o).onFabClick();
     }
   }
 
+  private Object currentFragment() {
+    return mViewPager.getAdapter().instantiateItem(mViewPager, mViewPager.getCurrentItem());
+  }
+
   public interface FabClickListener {
     void onFabClick();
+  }
+
+  public interface RowUpdateListener {
+    void onRowUpdate(int position);
   }
 
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
