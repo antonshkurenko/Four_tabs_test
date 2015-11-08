@@ -91,26 +91,8 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
       switch (item.getItemId()) {
         case R.id.action_save: {
-
           final Bitmap bitmap = ((BitmapDrawable) mImage.getDrawable()).getBitmap();
-          final File file = new File(
-              Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-              Integer.toString(bitmap.hashCode()) + ".png");
-          try {
-            FileOutputStream fos = null;
-            try {
-              fos = new FileOutputStream(file);
-              bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-              MediaScannerConnection.scanFile(FullScreenImageActivity.this,
-                  new String[] { file.getAbsolutePath() }, null, null);
-              Toast.makeText(FullScreenImageActivity.this,
-                  "Image was saved to the: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-            } finally {
-              if (fos != null) fos.close();
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
+          save(bitmap);
           return true;
         }
         case R.id.action_delete: {
@@ -126,4 +108,25 @@ public class FullScreenImageActivity extends AppCompatActivity {
       mActionMode = null;
     }
   };
+
+  private void save(Bitmap bitmap) {
+    final File file = new File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        Integer.toString(bitmap.hashCode()) + ".png");
+    try {
+      FileOutputStream fos = null;
+      try {
+        fos = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        MediaScannerConnection.scanFile(FullScreenImageActivity.this,
+            new String[] { file.getAbsolutePath() }, null, null);
+        Toast.makeText(FullScreenImageActivity.this,
+            "Image was saved to the: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+      } finally {
+        if (fos != null) fos.close();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }
