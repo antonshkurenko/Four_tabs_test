@@ -26,7 +26,7 @@ import me.cullycross.test4tabs.fragments.PicturesFragment;
  * Code style: SquareAndroid (https://github.com/square/java-code-styles)
  * Follow me: @tonyshkurenko
  */
-public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem> {
+public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.PictureItem> {
 
   private static final String URL = "http://lorempixel.com/200/200/food/%d/%s";
 
@@ -45,15 +45,15 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
     initList();
   }
 
-  @Override public DogItem onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+  @Override public PictureItem onCreateViewHolder(ViewGroup viewGroup, int viewType) {
 
     View v = LayoutInflater.from(viewGroup.getContext())
         .inflate(R.layout.recycler_view_item_picture, viewGroup, false);
 
-    return new DogItem(v);
+    return new PictureItem(v);
   }
 
-  @Override public void onBindViewHolder(DogItem holder, final int position) {
+  @Override public void onBindViewHolder(PictureItem holder, final int position) {
 
     final Pair<Integer, Integer> pair = mIntegerPairs.get(position);
 
@@ -89,11 +89,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.DogItem>
     }
   }
 
-  class DogItem extends RecyclerView.ViewHolder {
+  class PictureItem extends RecyclerView.ViewHolder {
 
     @Bind(R.id.image) ImageView mImage;
 
-    public DogItem(View itemView) {
+    public PictureItem(View itemView) {
       super(itemView);
       ButterKnife.bind(this, itemView);
     }
