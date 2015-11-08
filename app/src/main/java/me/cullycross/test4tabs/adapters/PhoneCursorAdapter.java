@@ -59,7 +59,7 @@ public class PhoneCursorAdapter extends CursorRecyclerViewAdapter<PhoneCursorAda
       ButterKnife.bind(this, view);
 
       RxPermissions.getInstance(view.getContext())
-          .request(mSubject, Manifest.permission.CAMERA)
+          .request(mSubject, Manifest.permission.CALL_PHONE)
           .subscribe(granted -> {
             if (granted) {
               final Intent intent = new Intent(Intent.ACTION_CALL);
