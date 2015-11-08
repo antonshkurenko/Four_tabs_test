@@ -1,13 +1,36 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="me.cullycross.test4tabs.fragments.SinglePictureFragment">
 
-  <!-- TODO: Update blank fragment layout -->
-  <TextView
+  <ImageView
+      android:id="@id/image"
+      android:src="@drawable/star"
+      android:scaleType="center"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      tools:text="Azaaz"/>
+      android:layout_height="match_parent"/>
 
-</FrameLayout>
+  <Button android:id="@+id/rotate"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Rotate"
+      android:layout_above="@+id/flip_vertical"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentEnd="true"/>
+  <Button android:id="@+id/flip_vertical"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Flip vertical"
+      android:layout_above="@+id/flip_horizontal"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentEnd="true"/>
+  <Button android:id="@+id/flip_horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Flip horizontal"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>
